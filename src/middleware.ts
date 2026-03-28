@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
   const path = request.nextUrl.pathname;
-  const isAuthRoute = path === '/login' || path === '/signup';
+  const isAuthRoute = path === '/login' || path === '/signup' || path === '/forgot-password' || path === '/reset-password';
   const isProtectedRoute = path.startsWith('/admin') || path.startsWith('/operador') || path.startsWith('/dispensador') || path.startsWith('/display');
 
   if (isProtectedRoute && !user) {
