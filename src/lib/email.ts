@@ -6,7 +6,7 @@ function getResend(): Resend {
   return new Resend(key);
 }
 
-const FROM = process.env.EMAIL_FROM || 'SinuFila <onboarding@resend.dev>';
+const FROM = process.env.EMAIL_FROM || 'SinuFila <noreply@mail.sinuhub.com>';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sinufila.vercel.app';
 
 // Componente base del email (HTML compartido)
