@@ -1,0 +1,16 @@
+{
+  "name": "SinuFila Display",
+  "short_name": "SinuFila",
+  "description": "Pantalla pública de gestión de turnos",
+  "start_url": "/display",
+  "display": "fullscreen",
+  "background_color": "#0A2463",
+  "theme_color": "#0A2463",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+// Tailwind v4 config — most config is now in globals.css via @theme
+// This file is still used to configure content paths and plugins
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -6,14 +8,6 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
-    },
-  },
-  plugins: [],
 };
+
 export default config;
