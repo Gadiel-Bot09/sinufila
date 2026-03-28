@@ -44,7 +44,7 @@ export async function processOperatorAction(action: 'attend' | 'complete' | 'ski
   }
 
   if ((action === 'complete' || action === 'skip' || action === 'absent') && ticketId) {
-    let finalStatus = action === 'complete' ? 'completed' : action;
+    const finalStatus = action === 'complete' ? 'completed' : action;
     
     // Calculate attend time
     const { data: ticket } = await supabase.from('tickets').select('attended_at').eq('id', ticketId).single();
