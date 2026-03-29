@@ -7,25 +7,26 @@ import { useState, useMemo } from 'react';
 export default function OperadorClient({ entityId, operator }: { entityId: string, operator: any }) {
   const { tickets, loading } = useTicketsRealtime(entityId);
   const [submitting, setSubmitting] = useState(false);
-  const [serviceFilter, setServiceFilter] = useState<string | null>(null); // null = todos
+  const [serviceFilter, setServiceFilter] = useState<string | null>(null);
 
-  if (loading) return <div className="p-8">Cargando datos en tiempo real...</div>;
-
-  // 1. Todos los tickets en espera (para estadísticas globales)
-  const allWaiting = tickets.filter(t => t.status === 'waiting');
-
-  // Servicios únicos en la cola (para los botones de filtro)
+  // Servicios únicos en la cola — DEBE estar antes del early return (reglas de hooks)
   const servicesInQueue = useMemo(() => {
+    const waiting = tickets.filter(t => t.status === 'waiting');
     const seen = new Map<string, { id: string; name: string; color: string; count: number }>();
-    for (const t of allWaiting) {
+    for (const t of waiting) {
       const id = t.service?.name ?? 'Sin servicio';
       if (!seen.has(id)) seen.set(id, { id, name: t.service?.name, color: t.service?.color, count: 0 });
       seen.get(id)!.count++;
     }
     return Array.from(seen.values());
-  }, [allWaiting]);
+  }, [tickets]);
 
-  // 2. Cola filtrada (por servicio seleccionado o todos)
+  if (loading) return <div className="p-8">Cargando datos en tiempo real...</div>;
+
+  // Todos los tickets en espera (para estadísticas globales)
+  const allWaiting = tickets.filter(t => t.status === 'waiting');
+
+  // Cola filtrada (por servicio seleccionado o todos)
   const waitingTickets = allWaiting
     .filter(t => !serviceFilter || t.service?.name === serviceFilter)
     .sort((a, b) => {

@@ -45,7 +45,7 @@ export async function inviteOperator(formData: FormData) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, name, role }),
     });
-  } catch (_err) {
+  } catch {
     // No bloquear si falla el email
   }
 

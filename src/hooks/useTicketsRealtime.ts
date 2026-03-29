@@ -3,39 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-/**
- * Calcula el inicio del día en hora Colombia (America/Bogota UTC-5)
- * sin depender de librerías de servidor.
- */
-function getStartOfDayColombia(): Date {
-  const now = new Date();
-  // Obtener la hora actual expresada en timezone Colombia
-  const colombiaStr = now.toLocaleString('en-US', { timeZone: 'America/Bogota' });
-  const colombiaNow = new Date(colombiaStr);
-  // Poner a medianoche en hora Colombia
-  colombiaNow.setHours(0, 0, 0, 0);
-  // Calcular los offsets para convertir de Colombia a UTC
-  const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
-  const utcNow = new Date(utcStr);
-  const diffMs = now.getTime() - utcNow.getTime(); // offset Colombia en ms (negativo, UTC-5)
-  const colombiaOffset = now.getTime() - colombiaNow.getTime() + diffMs;
-  return new Date(colombiaNow.getTime() - (now.getTime() - colombiaNow.getTime() - diffMs));
-}
 
 /**
- * Versión simplificada y robusta: toma la fecha local en formato Colombia
- * y construye el inicio del día directamente.
+ * Inicio del día en hora Colombia (UTC-5).
+ * medianoche Colombia = 05:00 UTC del mismo día.
  */
 function getStartOfDayColombiaISO(): string {
-  // Obtener fecha actual en Colombia como string "YYYY-MM-DD"
   const colombiaDate = new Date().toLocaleDateString('en-CA', {
     timeZone: 'America/Bogota',
-  }); // "2025-03-28"
-
-  // Construir el timestamp de medianoche Colombia como ISO UTC
-  // Colombia es UTC-5, entonces medianoche Colombia = 05:00 UTC del mismo día
+  });
   return `${colombiaDate}T05:00:00.000Z`;
 }
+
 
 export function useTicketsRealtime(entityId: string) {
   const [tickets, setTickets] = useState<any[]>([]);

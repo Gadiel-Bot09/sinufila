@@ -84,7 +84,7 @@ export default function SignupPage() {
             institutionName: form.institution_name,
           }),
         });
-      } catch (_) {
+      } catch {
         // No bloquear si falla el email
       }
     }

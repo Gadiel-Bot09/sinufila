@@ -13,12 +13,6 @@ export default async function VentanillasPage() {
     .eq('entity_id', entityId)
     .order('number', { ascending: true });
 
-  const { data: services } = await supabase
-    .from('services')
-    .select('id, name, color')
-    .eq('entity_id', entityId)
-    .eq('is_active', true);
-
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
       <div>
