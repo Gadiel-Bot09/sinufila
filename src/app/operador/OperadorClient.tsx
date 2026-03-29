@@ -53,7 +53,22 @@ export default function OperadorClient({ entityId, operator }: { entityId: strin
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 w-full h-full max-h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Top Bar */}
+      <div className="bg-[#0A2463] text-white px-6 py-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-lg">Panel Operador</span>
+          {operator.window && (
+            <span className="bg-yellow-400 text-[#0A2463] px-3 py-0.5 rounded-full font-black text-sm">
+              🏢 Ventanilla {operator.window.number}
+              {operator.window.name ? ` — ${operator.window.name}` : ''}
+            </span>
+          )}
+        </div>
+        <div className="text-blue-200 text-sm">{operator.name}</div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 flex-1 overflow-hidden">
       
       {/* Columna Izquierda — Cola de Espera */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
@@ -173,8 +188,8 @@ export default function OperadorClient({ entityId, operator }: { entityId: strin
             </div>
           </div>
         </div>
+       </div>
       </div>
-      
     </div>
   );
 }

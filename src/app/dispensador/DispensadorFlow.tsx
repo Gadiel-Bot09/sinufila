@@ -6,11 +6,13 @@ import { useReactToPrint } from 'react-to-print';
 import { TicketPrintLayout } from './TicketPrintLayout';
 
 export default function DispensadorFlow({
+  entityId,
   services,
   priorities,
   printConfig,
   entity,
 }: {
+  entityId: string;
   services: any[];
   priorities: any[];
   printConfig: any;
@@ -27,7 +29,7 @@ export default function DispensadorFlow({
 
   const generateAndPrint = async (priority: any) => {
     setIsGenerating(true);
-    const result = await createTicket(selectedService.id, priority.id);
+    const result = await createTicket(entityId, selectedService.id, priority.id);
 
     if (result.success && result.ticket) {
       setTicketData({ ...result.ticket, waitingCount: result.waitingCount });

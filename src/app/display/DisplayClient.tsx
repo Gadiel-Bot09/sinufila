@@ -64,9 +64,9 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
 
   const speakTurn = (ticket: any, voiceSettings: any) => {
     if (typeof window === 'undefined') return;
-    const message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla de atención')
+    const message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla {{ventanilla}}')
       .replace('{{turno}}', ticket.ticket_code)
-      .replace('{{ventanilla}}', ticket.window_id ?? '')
+      .replace('{{ventanilla}}', ticket.window?.number ? `número ${ticket.window.number}` : 'de atención')
       .replace('{{servicio}}', ticket.service?.name ?? '');
 
     const reps: number = voiceSettings.repetitions ?? 1;
@@ -156,6 +156,12 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
                 >
                   {lastCalled.priority?.icon} {lastCalled.priority?.name}
                 </div>
+                {lastCalled.window && (
+                  <div className="mt-3 bg-yellow-400 text-[#0A2463] rounded-xl px-5 py-2 text-lg font-black">
+                    🏢 Ventanilla {lastCalled.window.number}
+                    {lastCalled.window.name ? ` — ${lastCalled.window.name}` : ''}
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div
