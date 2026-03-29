@@ -1,16 +1,73 @@
 {
-  "name": "SinuFila Display",
+  "name": "SinuFila — Gestión de Turnos",
   "short_name": "SinuFila",
-  "description": "Pantalla pública de gestión de turnos",
+  "description": "Sistema de gestión de filas y turnos en tiempo real",
   "start_url": "/display",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#0A2463",
   "theme_color": "#0A2463",
+  "orientation": "landscape",
+  "lang": "es-CO",
+  "categories": ["productivity", "business"],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/display.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pantalla pública de turnos"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Panel Admin",
+      "url": "/admin/dashboard",
+      "description": "Ir al panel de administración",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Panel Operador",
+      "url": "/operador",
+      "description": "Ir al panel de operador",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ]
 }

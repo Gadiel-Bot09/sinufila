@@ -1,23 +1,17 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import PWARegister from './PWARegister';
+import type { Metadata } from 'next';
 
-export default async function DisplayLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export const metadata: Metadata = {
+  title: 'SinuFila Display',
+  description: 'Pantalla pública de turnos',
+  manifest: '/manifest.json',
+};
 
-  if (!user) {
-    redirect("/login");
-  }
-
+export default function DisplayLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex bg-black min-h-screen text-white flex-col relative w-full overflow-hidden select-none">
-      <main className="flex-1 flex w-full h-full">
-        {children}
-      </main>
-    </div>
+    <>
+      <PWARegister />
+      {children}
+    </>
   );
 }
