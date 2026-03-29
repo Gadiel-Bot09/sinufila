@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentEntityId } from "@/lib/supabase/queries";
 import { getStartOfDayColombia, getCurrentDateLabelColombia } from "@/lib/timezone";
 import Link from "next/link";
+import JornadaWidget from "../JornadaWidget";
 
 export default async function AdminDashboardPage() {
   const entityId = await getCurrentEntityId();
@@ -35,12 +36,15 @@ export default async function AdminDashboardPage() {
     { data: windows },
     { data: services },
   ] = await Promise.all([
-    supabase.from('entities').select('name').eq('id', entityId).single(),
+    supabase.from('entities').select('name, config_json').eq('id', entityId).single(),
     supabase.from('tickets').select('status, attend_time_seconds').eq('entity_id', entityId).gte('created_at', startOfDay.toISOString()),
     supabase.from('operators').select('id, is_active').eq('entity_id', entityId),
     supabase.from('windows').select('id, is_active').eq('entity_id', entityId),
     supabase.from('services').select('id, is_active').eq('entity_id', entityId),
   ]);
+
+  const entityConfig = (entity?.config_json as Record<string, unknown>) ?? {};
+  const isJornadaOpen = entityConfig.is_open !== false; // abierta por defecto
 
   const totalToday = tickets?.length || 0;
   const completed = tickets?.filter(t => t.status === 'completed') || [];
@@ -100,20 +104,26 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Acciones Rápidas */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-lg font-bold text-gray-800 mb-4">⚡ Accesos Rápidos</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {shortcuts.map(s => (
-            <Link
-              key={s.href}
-              href={s.href}
-              className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-[#0A2463] hover:text-white transition-all group text-center"
-            >
-              <span className="text-3xl">{s.icon}</span>
-              <span className="text-sm font-semibold text-gray-700 group-hover:text-white">{s.label}</span>
-            </Link>
-          ))}
+      {/* Bottom Row: Jornada + Shortcuts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Jornada Widget */}
+        <JornadaWidget isOpen={isJornadaOpen} entityId={entityId} />
+
+        {/* Acciones Rápidas */}
+        <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">⚡ Accesos Rápidos</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {shortcuts.map(s => (
+              <Link
+                key={s.href}
+                href={s.href}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-[#0A2463] hover:text-white transition-all group text-center"
+              >
+                <span className="text-3xl">{s.icon}</span>
+                <span className="text-sm font-semibold text-gray-700 group-hover:text-white">{s.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

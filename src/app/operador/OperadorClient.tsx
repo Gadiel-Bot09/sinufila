@@ -2,23 +2,34 @@
 
 import { useTicketsRealtime } from '@/hooks/useTicketsRealtime';
 import { processOperatorAction } from './actions';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function OperadorClient({ entityId, operator }: { entityId: string, operator: any }) {
   const { tickets, loading } = useTicketsRealtime(entityId);
   const [submitting, setSubmitting] = useState(false);
+  const [serviceFilter, setServiceFilter] = useState<string | null>(null); // null = todos
 
   if (loading) return <div className="p-8">Cargando datos en tiempo real...</div>;
 
-  // 1. Process Queue (waiting)
-  const waitingTickets = tickets
-    .filter(t => t.status === 'waiting')
+  // 1. Todos los tickets en espera (para estadísticas globales)
+  const allWaiting = tickets.filter(t => t.status === 'waiting');
+
+  // Servicios únicos en la cola (para los botones de filtro)
+  const servicesInQueue = useMemo(() => {
+    const seen = new Map<string, { id: string; name: string; color: string; count: number }>();
+    for (const t of allWaiting) {
+      const id = t.service?.name ?? 'Sin servicio';
+      if (!seen.has(id)) seen.set(id, { id, name: t.service?.name, color: t.service?.color, count: 0 });
+      seen.get(id)!.count++;
+    }
+    return Array.from(seen.values());
+  }, [allWaiting]);
+
+  // 2. Cola filtrada (por servicio seleccionado o todos)
+  const waitingTickets = allWaiting
+    .filter(t => !serviceFilter || t.service?.name === serviceFilter)
     .sort((a, b) => {
-      // 1° criterio: nivel de prioridad (1 = más urgente)
-      if (a.priority.level !== b.priority.level) {
-        return a.priority.level - b.priority.level;
-      }
-      // 2° criterio: orden de llegada (FIFO)
+      if (a.priority.level !== b.priority.level) return a.priority.level - b.priority.level;
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     });
 
@@ -65,7 +76,35 @@ export default function OperadorClient({ entityId, operator }: { entityId: strin
             </span>
           )}
         </div>
-        <div className="text-blue-200 text-sm">{operator.name}</div>
+        <div className="flex items-center gap-3">
+          <span className="text-blue-200 text-sm">{operator.name}</span>
+          {/* Filtro de servicio */}
+          {servicesInQueue.length > 1 && (
+            <div className="flex gap-1.5 items-center">
+              <span className="text-blue-300 text-xs">Filtrar:</span>
+              <button
+                onClick={() => setServiceFilter(null)}
+                className={`px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
+                  serviceFilter === null ? 'bg-white text-[#0A2463]' : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                Todos ({allWaiting.length})
+              </button>
+              {servicesInQueue.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setServiceFilter(s.name)}
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
+                    serviceFilter === s.name ? 'text-white' : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                  style={serviceFilter === s.name ? { backgroundColor: s.color } : {}}
+                >
+                  {s.name} ({s.count})
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 flex-1 overflow-hidden">

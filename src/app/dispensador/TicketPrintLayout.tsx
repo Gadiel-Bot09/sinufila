@@ -72,8 +72,8 @@ export const TicketPrintLayout = forwardRef<HTMLDivElement, TicketPrintProps>(
 
           {printConfig?.show_qr && (
             <div style={{ margin: '12px auto', display: 'flex', justifyContent: 'center' }}>
-              <QRCodeSVG
-                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/estado/${ticketData.id}`}
+            <QRCodeSVG
+                value={`${typeof window !== 'undefined' ? window.location.origin : 'https://sinufila.sinuhub.com'}/turno?entity=${ticketData.entity_id}&id=${ticketData.id}`}
                 size={100}
               />
             </div>

@@ -57,6 +57,28 @@ export default async function DispensadorPage({ searchParams }: Props) {
     );
   }
 
+  // Verificar si la jornada está cerrada
+  const entityConfig = (entity?.config_json as Record<string, unknown>) ?? {};
+  const isJornadaOpen = entityConfig.is_open !== false; // abierta por defecto
+
+  if (!isJornadaOpen) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0A2463] to-[#163580] text-white p-8">
+        <div className="bg-white/10 backdrop-blur rounded-3xl p-12 max-w-md text-center border border-white/20">
+          <div className="text-7xl mb-6">🔒</div>
+          <h1 className="text-3xl font-black mb-3">Jornada Cerrada</h1>
+          <p className="text-blue-200 text-lg mb-2">
+            El servicio de turnos de <strong>{entity.name}</strong> no está disponible en este momento.
+          </p>
+          <p className="text-blue-300 text-sm">
+            Por favor vuelve durante el horario de atención o consulta con el personal.
+          </p>
+        </div>
+        <p className="text-blue-400 text-xs mt-8">SinuFila • Sistema de Gestión de Turnos</p>
+      </div>
+    );
+  }
+
   const [servicesRes, prioritiesRes, printConfigRes] = await Promise.all([
     supabase
       .from('services')

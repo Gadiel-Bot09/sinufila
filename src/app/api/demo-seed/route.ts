@@ -1,7 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  // Bloquear en producción a menos que se provea el secret correcto
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secret = req.nextUrl.searchParams.get('secret');
+  const expectedSecret = process.env.DEMO_SECRET;
+
+  if (isProduction && (!expectedSecret || secret !== expectedSecret)) {
+    return NextResponse.json(
+      { error: 'No disponible en producción. Usa el parámetro ?secret=TU_DEMO_SECRET si eres el administrador.' },
+      { status: 403 }
+    );
+  }
+
   const supabase = createClient();
 
   const {
