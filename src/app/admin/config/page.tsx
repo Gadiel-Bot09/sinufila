@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Settings, ListCollapse, AlertCircle, Volume2, MonitorPlay, FileText } from "lucide-react";
+import { Settings, ListCollapse, AlertCircle, Volume2, MonitorPlay, FileText, MessageCircle } from "lucide-react";
 
 const configOptions = [
   {
@@ -43,6 +43,13 @@ const configOptions = [
     icon: FileText,
     href: "/admin/config/tickets",
     color: "bg-gray-100 text-gray-600",
+  },
+  {
+    title: "WhatsApp API",
+    description: "Configura notificaciones vía Evolution API (gratis).",
+    icon: MessageCircle,
+    href: "/admin/config/whatsapp",
+    color: "bg-green-100 text-green-600",
   },
 ];
 
