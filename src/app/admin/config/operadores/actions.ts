@@ -24,6 +24,7 @@ export async function inviteOperator(formData: FormData) {
         full_name: name,
         entity_id: entityId,
       },
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
     });
 
     if (inviteError || !inviteData?.user) {

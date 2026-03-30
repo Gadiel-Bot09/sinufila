@@ -18,11 +18,21 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     // Supabase maneja el hash automáticamente al cargar esta página
     const supabase = createClient();
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+    
+    // Verificar si ya hay sesión lista o fue un acceso por token de invitación
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setReady(true);
       }
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
