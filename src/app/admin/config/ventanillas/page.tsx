@@ -96,7 +96,6 @@ export default async function VentanillasPage() {
                     <button
                       type="submit"
                       className="text-sm text-red-500 hover:underline"
-                      onClick={e => { if (!confirm('¿Eliminar ventanilla?')) e.preventDefault(); }}
                     >
                       Eliminar
                     </button>
