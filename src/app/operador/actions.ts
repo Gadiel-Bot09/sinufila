@@ -75,9 +75,9 @@ export async function processOperatorAction(
       window_id: operator.window_id,
       attended_at: now,
       called_at: now,
-    }).eq('id', ticketId).eq('status', 'waiting');
+    }).eq('id', ticketId).eq('status', 'waiting').select('id');
 
-    if (!attendResult.error) {
+    if (!attendResult.error && attendResult.data && attendResult.data.length > 0) {
       // Enviar WhatsApp "¡Eres llamado!" al paciente
       if (ticket?.phone_number) {
         const windowData = operator.window as unknown as { name: string; number: string } | null;
@@ -97,8 +97,8 @@ export async function processOperatorAction(
       await notifyNextInQueue(supabase, entityId, entityName, evolutionConfig);
       return { success: true };
     } else {
-      console.error('Attend Error:', attendResult.error);
-      return { error: 'Fallo al atender ticket: ' + attendResult.error.message };
+      console.error('Attend Error/No Rows:', attendResult);
+      return { error: 'Fallo al procesar el llamado. Razón posible: Permisos insuficientes o el turno ya fue llamado.' };
     }
   }
 
@@ -123,15 +123,15 @@ export async function processOperatorAction(
       status: finalStatus,
       completed_at: now,
       attend_time_seconds,
-    }).eq('id', ticketId).eq('operator_id', operator.id);
+    }).eq('id', ticketId).eq('operator_id', operator.id).select('id');
 
-    if (!updateResult.error) {
+    if (!updateResult.error && updateResult.data && updateResult.data.length > 0) {
       // Cuando se completa/salta, notificar al siguiente en cola
       await notifyNextInQueue(supabase, entityId, entityName, evolutionConfig);
       return { success: true };
     } else {
-      console.error('Update Ticket Error:', updateResult.error);
-      return { error: 'Error al finalizar turno: ' + updateResult.error.message };
+      console.error('Update Ticket Error/No Rows:', updateResult);
+      return { error: 'No se pudo actualizar el turno. Es posible que tengas problemas de permisos o sesión expirada.' };
     }
   }
 
@@ -145,9 +145,9 @@ export async function processOperatorAction(
 
     const recallResult = await supabase.from('tickets').update({
       called_at: now,
-    }).eq('id', ticketId).eq('operator_id', operator.id);
+    }).eq('id', ticketId).eq('operator_id', operator.id).select('id');
 
-    if (!recallResult.error && ticket?.phone_number) {
+    if (!recallResult.error && recallResult.data && recallResult.data.length > 0 && ticket?.phone_number) {
       const windowData = operator.window as unknown as { name: string; number: string } | null;
       await sendWhatsApp(
         ticket.phone_number,
@@ -161,7 +161,10 @@ export async function processOperatorAction(
       );
     }
 
-    return { success: !recallResult.error };
+    if (!recallResult.error && recallResult.data && recallResult.data.length > 0) {
+      return { success: true };
+    }
+    return { error: 'Fallo al realizar el rellamado (Permisos o turno inexistente)' };
   }
 
   return { error: 'Acción no válida' };
