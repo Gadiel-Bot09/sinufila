@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentEntityId } from "@/lib/supabase/queries";
-import { inviteOperator, toggleOperatorActive, updateOperatorWindow } from "./actions";
+import { toggleOperatorActive, updateOperatorWindow } from "./actions";
+import InviteOperatorForm from "./InviteOperatorForm";
 
 export default async function OperadoresPage() {
   const entityId = await getCurrentEntityId();
@@ -32,66 +33,7 @@ export default async function OperadoresPage() {
       </div>
 
       {/* Formulario invitar operador */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-lg font-bold text-gray-800 mb-1">Invitar Operador</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Se enviará un correo de invitación con instrucciones para crear su contraseña.
-        </p>
-        <form action={inviteOperator} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="Nombre del operador"
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00838F]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="operador@tuinstitucion.com"
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00838F]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-            <select
-              name="role"
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00838F]"
-            >
-              <option value="operator">Operador (Atiende turnos)</option>
-              <option value="admin">Administrador (Acceso total)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ventanilla Asignada</label>
-            <select
-              name="window_id"
-              className="w-full border rounded-md px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00838F]"
-            >
-              <option value="">— Sin asignar —</option>
-              {windows?.map(w => (
-                <option key={w.id} value={w.id}>
-                  Ventanilla {w.number} — {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="md:col-span-2 flex justify-end">
-            <button
-              type="submit"
-              className="bg-[#0A2463] text-white px-6 py-2 rounded-md hover:bg-[#081b4b] transition-colors font-semibold"
-            >
-              📧 Enviar Invitación
-            </button>
-          </div>
-        </form>
-      </div>
+      <InviteOperatorForm windows={windows} />
 
       {/* Lista de operadores */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
