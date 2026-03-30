@@ -42,12 +42,16 @@ export async function processOperatorAction(
 
   // ── ATTEND ────────────────────────────────────────────────────────────────
   if (action === 'attend' && ticketId) {
+    const colombiaDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+    const startOfDay = `${colombiaDate}T05:00:00.000Z`;
+
     const { data: currentlyAttending } = await supabase
       .from('tickets')
       .select('id')
       .eq('operator_id', operator.id)
       .eq('status', 'attending')
-      .single();
+      .gte('created_at', startOfDay)
+      .maybeSingle();
 
     if (currentlyAttending) {
       return { error: 'Debes finalizar el turno actual primero' };

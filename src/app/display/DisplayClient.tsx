@@ -23,6 +23,16 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
   const [history, setHistory] = useState<any[]>([]);
   const prevTicketsRef = useRef<any[]>([]);
   const [currentTime, setCurrentTime] = useState('');
+  const [interacted, setInteracted] = useState(false);
+
+  // Desbloquear audio del navegador
+  const handleStartDisplay = () => {
+    setInteracted(true);
+    // Silent speech para desbloquear el motor TTS interactuando con el DOM
+    const unlockUtterance = new SpeechSynthesisUtterance('');
+    unlockUtterance.volume = 0;
+    window.speechSynthesis.speak(unlockUtterance);
+  };
 
   // Update clock every second
   useEffect(() => {
@@ -60,10 +70,9 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
     }
 
     prevTicketsRef.current = tickets;
-  }, [tickets, loading, config]);
-
+  }, [tickets, loading, config, interacted]);
   const speakTurn = (ticket: any, voiceSettings: any) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !interacted) return;
     const message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla {{ventanilla}}')
       .replace('{{turno}}', ticket.ticket_code)
       .replace('{{ventanilla}}', ticket.window?.number ? `número ${ticket.window.number}` : 'de atención')
@@ -92,7 +101,25 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-[#0A2463] overflow-hidden select-none">
+    <div className="flex flex-col h-screen w-full bg-[#0A2463] overflow-hidden select-none relative">
+
+      {!interacted && (
+        <div className="absolute inset-0 z-50 bg-[#0A2463]/90 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="text-8xl mb-6 animate-bounce">🔈</div>
+          <h2 className="text-4xl font-bold text-white mb-8 text-center px-4">
+            La pantalla está en pausa
+          </h2>
+          <button 
+            onClick={handleStartDisplay}
+            className="bg-[#4CAF82] hover:bg-[#3d8c68] text-white px-10 py-5 rounded-full text-2xl font-black shadow-[0_0_40px_rgba(76,175,130,0.5)] transition-transform hover:scale-105"
+          >
+            ▶️ Activar Pantalla y Sonido
+          </button>
+          <p className="text-blue-200 mt-6 text-lg max-w-lg text-center">
+            Por reglas de seguridad, los navegadores bloquean el sonido automático hasta que el usuario hace clic.
+          </p>
+        </div>
+      )}
 
       {/* HEADER */}
       <header className="h-[10vh] min-h-[70px] bg-white text-[#0A2463] flex items-center justify-between px-8 shadow-md shrink-0">
