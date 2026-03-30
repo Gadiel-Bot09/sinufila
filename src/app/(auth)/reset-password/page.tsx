@@ -19,19 +19,40 @@ export default function ResetPasswordPage() {
     // Supabase maneja el hash automáticamente al cargar esta página
     const supabase = createClient();
     
+    // Verificar si hay errores directos en la URL (ej. otp_expired devuelto en el hash)
+    if (typeof window !== 'undefined' && window.location.hash.includes('error=')) {
+      const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+      const errorDesc = params.get('error_description') || 'El enlace es inválido o expiró.';
+      setError(errorDesc.replace(/\+/g, ' '));
+      setReady(true);
+      return;
+    }
+
     // Verificar si ya hay sesión lista o fue un acceso por token de invitación
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session || event === 'PASSWORD_RECOVERY') {
         setReady(true);
       }
     });
 
+    // Timeout de seguridad de 4 segundos: si no hay sesión ni error asume que el enlace es inválido
+    const timeout = setTimeout(() => {
+      setReady(current => {
+        if (!current) {
+          setError('No se detectó una invitación válida o sesión activa. El enlace pudo expirar.');
+          return true;
+        }
+        return current;
+      });
+    }, 4000);
+
     return () => {
       subscription.unsubscribe();
+      clearTimeout(timeout);
     };
   }, []);
 
