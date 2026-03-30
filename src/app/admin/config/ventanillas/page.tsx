@@ -7,11 +7,15 @@ export default async function VentanillasPage() {
   if (!entityId) return <div className="p-8 text-red-600">No tienes una entidad asignada.</div>;
 
   const supabase = createClient();
-  const { data: windows } = await supabase
+  const { data: windows, error: fetchError } = await supabase
     .from('windows')
     .select('*, service:services(name, color)')
     .eq('entity_id', entityId)
     .order('number', { ascending: true });
+
+  if (fetchError) {
+    return <div className="p-8 text-red-600">Error al cargar ventanillas: {fetchError.message}</div>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
