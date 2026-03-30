@@ -45,16 +45,21 @@ export async function processOperatorAction(
     const colombiaDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
     const startOfDay = `${colombiaDate}T05:00:00.000Z`;
 
-    const { data: currentlyAttending } = await supabase
+    const { data: currentlyAttendingList, error: checkError } = await supabase
       .from('tickets')
       .select('id')
       .eq('operator_id', operator.id)
       .eq('status', 'attending')
       .gte('created_at', startOfDay)
-      .maybeSingle();
+      .limit(1);
 
-    if (currentlyAttending) {
-      return { error: 'Debes finalizar el turno actual primero' };
+    if (currentlyAttendingList && currentlyAttendingList.length > 0) {
+      return { error: 'Debes finalizar el turno actual primero o refrescar la página si hay desincronización' };
+    }
+
+    if (checkError) {
+      console.error('Check Error:', checkError);
+      return { error: 'Error del sistema al verificar ticket actual. ' + checkError.message };
     }
 
     // Fetch ticket data (para WhatsApp)
@@ -90,9 +95,11 @@ export async function processOperatorAction(
 
       // 🔔 Notificar al siguiente en la cola "Casi es tu turno"
       await notifyNextInQueue(supabase, entityId, entityName, evolutionConfig);
+      return { success: true };
+    } else {
+      console.error('Attend Error:', attendResult.error);
+      return { error: 'Fallo al atender ticket: ' + attendResult.error.message };
     }
-
-    return { success: !attendResult.error };
   }
 
   // ── COMPLETE / SKIP / ABSENT ───────────────────────────────────────────────
@@ -121,9 +128,11 @@ export async function processOperatorAction(
     if (!updateResult.error) {
       // Cuando se completa/salta, notificar al siguiente en cola
       await notifyNextInQueue(supabase, entityId, entityName, evolutionConfig);
+      return { success: true };
+    } else {
+      console.error('Update Ticket Error:', updateResult.error);
+      return { error: 'Error al finalizar turno: ' + updateResult.error.message };
     }
-
-    return { success: !updateResult.error };
   }
 
   // ── RECALL ─────────────────────────────────────────────────────────────────
