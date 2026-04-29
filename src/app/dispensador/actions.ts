@@ -3,6 +3,41 @@
 import { createClient } from '@/lib/supabase/server';
 import { getStartOfDayColombia } from '@/lib/timezone';
 import { sendWhatsApp, msgTicketConfirmacion, normalizePhoneCO } from '@/lib/whatsapp';
+import { headers } from 'next/headers';
+
+// ─── Rate Limiter (in-memory, por IP) ─────────────────────────────────────────
+// Máximo 5 tickets por IP cada 60 segundos
+const RATE_LIMIT_MAX     = 5;
+const RATE_LIMIT_WINDOW  = 60_000; // 60 seg en ms
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterSec?: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    // Primera solicitud en la ventana o ventana expirada
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return { allowed: true };
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    const retryAfterSec = Math.ceil((entry.resetAt - now) / 1000);
+    return { allowed: false, retryAfterSec };
+  }
+
+  entry.count++;
+  return { allowed: true };
+}
+
+function getClientIp(): string {
+  const headersList = headers();
+  return (
+    headersList.get('x-forwarded-for')?.split(',')[0].trim() ||
+    headersList.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sinufila.sinuhub.com';
 
@@ -14,6 +49,15 @@ export async function createTicket(
 ) {
   if (!entityId || !serviceId || !priorityId) {
     return { error: 'Parámetros inválidos' };
+  }
+
+  // ── Rate Limiting ──────────────────────────────────────────────────────────
+  const ip = getClientIp();
+  const rateCheck = checkRateLimit(ip);
+  if (!rateCheck.allowed) {
+    return {
+      error: `Límite de tickets alcanzado. Espera ${rateCheck.retryAfterSec} segundos antes de intentar nuevamente.`,
+    };
   }
 
   const supabase = createClient();

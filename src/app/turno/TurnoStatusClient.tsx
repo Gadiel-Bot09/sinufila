@@ -30,14 +30,91 @@ function formatTimeCO(iso: string) {
   return new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit' });
 }
 
+// ─── Satisfaction Widget ──────────────────────────────────────────────────────
+function SatisfactionWidget({ ticketId, entityId }: { ticketId: string; entityId: string }) {
+  const [rating, setRating]     = useState(0);
+  const [hovered, setHovered]   = useState(0);
+  const [comment, setComment]   = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading]   = useState(false);
+
+  const handleSubmit = async () => {
+    if (rating === 0) return;
+    setLoading(true);
+    try {
+      await fetch('/api/satisfaccion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId, entityId, rating, comment }),
+      });
+      setSubmitted(true);
+    } catch {
+      // silencioso
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
+        <div className="text-3xl mb-2">🙏</div>
+        <p className="text-green-700 font-bold text-sm">¡Gracias por tu calificación!</p>
+        <p className="text-green-600 text-xs mt-1">Tu opinión nos ayuda a mejorar.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+      <p className="text-sm font-bold text-gray-700 text-center mb-3">¿Cómo fue tu atención?</p>
+
+      {/* Stars */}
+      <div className="flex justify-center gap-2 mb-4">
+        {[1, 2, 3, 4, 5].map(star => (
+          <button
+            key={star}
+            onMouseEnter={() => setHovered(star)}
+            onMouseLeave={() => setHovered(0)}
+            onClick={() => setRating(star)}
+            className="text-3xl transition-transform hover:scale-110 active:scale-95"
+          >
+            {star <= (hovered || rating) ? '⭐' : '☆'}
+          </button>
+        ))}
+      </div>
+
+      {/* Comment */}
+      {rating > 0 && (
+        <textarea
+          value={comment}
+          onChange={e => setComment(e.target.value.slice(0, 200))}
+          placeholder="Comentario opcional... (máx 200 caracteres)"
+          rows={2}
+          className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 mb-3 resize-none focus:outline-none focus:ring-2 focus:ring-[#00838F]/30 bg-gray-50"
+        />
+      )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={rating === 0 || loading}
+        className="w-full py-2.5 rounded-xl bg-[#0A2463] text-white text-sm font-bold transition-all hover:bg-[#081b4b] disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {loading ? 'Enviando...' : 'Enviar Calificación'}
+      </button>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function TurnoStatusClient() {
   const searchParams = useSearchParams();
-  const entityId = searchParams.get('entity');
-  const ticketId = searchParams.get('id');
+  const entityId  = searchParams.get('entity');
+  const ticketId  = searchParams.get('id');
 
-  const [ticket, setTicket] = useState<Ticket | null>(null);
+  const [ticket, setTicket]   = useState<Ticket | null>(null);
   const [position, setPosition] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
 
@@ -71,7 +148,7 @@ export default function TurnoStatusClient() {
           .eq('entity_id', entityId)
           .eq('status', 'waiting')
           .lt('created_at', data.created_at);
-        setPosition((count ?? 0));
+        setPosition(count ?? 0);
       }
       setLoading(false);
     };
@@ -90,7 +167,7 @@ export default function TurnoStatusClient() {
     return (
       <div className="min-h-screen bg-[#0A2463] flex items-center justify-center">
         <div className="text-white text-center">
-          <div className="text-5xl mb-4 animate-spin">⚙️</div>
+          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4" />
           <p className="text-blue-200">Cargando estado del turno...</p>
         </div>
       </div>
@@ -109,8 +186,9 @@ export default function TurnoStatusClient() {
     );
   }
 
-  const status = STATUS_CONFIG[ticket.status] ?? STATUS_CONFIG['waiting'];
+  const status   = STATUS_CONFIG[ticket.status] ?? STATUS_CONFIG['waiting'];
   const isActive = ticket.status === 'waiting' || ticket.status === 'attending';
+  const isDone   = ticket.status === 'completed';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A2463] via-[#163580] to-[#00838F] flex flex-col items-center justify-center p-4">
@@ -210,6 +288,13 @@ export default function TurnoStatusClient() {
                 </div>
               )}
             </div>
+
+            {/* ── Encuesta de satisfacción ── */}
+            {isDone && entityId && ticketId && (
+              <div className="pt-2">
+                <SatisfactionWidget ticketId={ticketId} entityId={entityId} />
+              </div>
+            )}
           </div>
 
           {/* Footer */}

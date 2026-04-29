@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta Comercial - SinuFila</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0A2463',   // Azul Profundo SinuFila
+                        secondary: '#FF6B35', // Naranja Acento
+                        accent: '#4CAF82',    // Verde Éxito
+                        surface: '#F8FAFC',   // Gris claro de fondo
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        @media print {
+            body { font-size: 11pt; background: white; }
+            .no-print { display: none !important; }
+            .print-break { page-break-before: always; }
+            .shadow-xl, .shadow-lg, .glass-panel { box-shadow: none !important; border: 1px solid #e2e8f0; }
+            .print-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-surface text-gray-800 font-sans p-4 md:p-8 lg:p-12 print:p-0">
+
+    <!-- Print Button (Hidden on strict print) -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-end no-print">
+        <button onclick="window.print()" class="bg-primary hover:bg-blue-900 text-white px-6 py-2 rounded-full font-semibold shadow-md transition transform hover:-translate-y-1 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Exportar a PDF
+        </button>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl print-container print:shadow-none print:rounded-none">
+        
+        <!-- HEADER -->
+        <header class="bg-primary text-white p-10 relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-white opacity-5 rounded-full blur-2xl"></div>
+            <div class="absolute right-20 -bottom-20 w-48 h-48 bg-secondary opacity-20 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2">SinuFila<span class="text-secondary">.</span></h1>
+                    <p class="text-blue-200 text-lg font-medium">Gestión Inteligente de Turnos y Filas</p>
+                </div>
+                <div class="text-left md:text-right bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20 w-full md:w-auto">
+                    <p class="text-sm text-blue-200 uppercase tracking-widest font-bold mb-1">Propuesta Comercial</p>
+                    <p class="font-semibold text-lg">No. 2026-001</p>
+                    <p class="text-sm mt-2 opacity-80">Fecha: <span class="font-semibold" id="currentDate">31 Marzo 2026</span></p>
+                    <p class="text-sm opacity-80">Validez: <span class="font-semibold">15 días</span></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- CLIENT INFO -->
+        <div class="px-10 py-8 border-b border-gray-100 flex flex-col md:flex-row justify-between gap-6 bg-gray-50/50">
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Preparado para:</h3>
+                <p class="text-xl font-bold text-gray-800">[Nombre del Cliente / Empresa]</p>
+                <p class="text-gray-600 font-medium">[Atención: Contacto del Cliente]</p>
+                <p class="text-gray-500 text-sm mt-1">[Ciudad, Colombia]</p>
+            </div>
+            <div class="text-left md:text-right">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Presentado por:</h3>
+                <p class="text-lg font-bold text-primary">SinuHub Technologies</p>
+                <p class="text-gray-600 font-medium">Departamento Comercial</p>
+                <p class="text-gray-500 text-sm mt-1">ventas@sinuhub.com</p>
+            </div>
+        </div>
+
+        <!-- INTRO & VALUE PROP -->
+        <div class="p-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 relative">
+                Transformación Digital para su Sala de Espera
+                <span class="absolute bottom-0 left-0 w-16 h-1 bg-secondary rounded-full -mb-2"></span>
+            </h2>
+            
+            <p class="text-gray-600 leading-relaxed mb-8 text-lg">
+                SinuFila es una plataforma <strong>100% en la nube (SaaS)</strong> diseñada para eliminar el caos en su sala de espera, mejorar radicalmente la experiencia del paciente/cliente y brindar métricas gerenciales. A diferencia de los sistemas tradicionales, no requerimos servidores, ni costosos tótems metálicos, ni complicados cables de red.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div class="p-6 rounded-2xl bg-blue-50 border border-blue-100 flex gap-4 transition hover:shadow-lg">
+                    <div class="bg-white p-3 rounded-xl shadow-sm h-min text-primary">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-1">Cero Hardware Costoso</h4>
+                        <p class="text-sm text-gray-600">Funciona desde cualquier Smart TV, tablet Android/iPad y computadores que usted ya posea.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-green-50 border border-green-100 flex gap-4 transition hover:shadow-lg">
+                    <div class="bg-white p-3 rounded-xl shadow-sm h-min text-green-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-1">Integración WhatsApp</h4>
+                        <p class="text-sm text-gray-600">Sus clientes reciben alertas en su celular de "Llamado a ventanilla" y "Casi es tu turno".</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULES -->
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Módulos del Sistema</h3>
+            
+            <div class="space-y-4 mb-12">
+                <div class="flex flex-col md:flex-row items-stretch border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-300 transition">
+                    <div class="bg-gray-100 p-6 flex items-center justify-center w-full md:w-1/4">
+                        <span class="text-4xl">📱</span>
+                    </div>
+                    <div class="p-6 w-full md:w-3/4">
+                        <h4 class="text-xl font-bold text-primary mb-2">Kiosco Dispensador (Digital)</h4>
+                        <p class="text-gray-600">Interfaz touch intuitiva diseñada para tablets a la entrada de su sede. Permite seleccionar categorías de servicio y prioridades de Ley (Adulto Mayor, Embarazada).</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-stretch border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-300 transition">
+                    <div class="bg-gray-100 p-6 flex items-center justify-center w-full md:w-1/4">
+                        <span class="text-4xl">💻</span>
+                    </div>
+                    <div class="p-6 w-full md:w-3/4">
+                        <h4 class="text-xl font-bold text-primary mb-2">Panel de Operador (Cajero)</h4>
+                        <p class="text-gray-600">Acceso web para sus asesores. Permite llamar al siguiente turno, rellamar, marcar como ausente o finalizar la atención midiendo los tiempos precisos de servicio.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-stretch border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-300 transition">
+                    <div class="bg-gray-100 p-6 flex items-center justify-center w-full md:w-1/4">
+                        <span class="text-4xl">📺</span>
+                    </div>
+                    <div class="p-6 w-full md:w-3/4">
+                        <h4 class="text-xl font-bold text-primary mb-2">Pantalla Inteligente (TV)</h4>
+                        <p class="text-gray-600">Módulo visual con motor de síntesis de voz nativo que anuncia los llamados. Incluye módulo derecho con historial visual y módulo izquierdo para videos de entretenimiento o publicidad propia.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="print-break"></div>
+
+            <!-- INVESTMENT -->
+            <h2 class="text-3xl font-bold text-gray-800 mb-2 relative">
+                Inversión y Planes
+                <span class="absolute bottom-0 left-0 w-16 h-1 bg-secondary rounded-full -mb-2"></span>
+            </h2>
+            <p class="text-gray-500 mb-8 mt-4">Elija el modelo que mejor se adapte al volumen operativo de su sede.</p>
+
+            <!-- Setup Fee -->
+            <div class="bg-[#0A2463] text-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center mb-8 shadow-xl">
+                <div>
+                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Instalación y Parametrización (Pago Único)
+                    </h3>
+                    <p class="text-blue-200">Creación de cuenta, personalización de colores/logos, estructura de servicios, prioridades legales y capacitación virtual a operadores.</p>
+                </div>
+                <div class="mt-4 md:mt-0 whitespace-nowrap text-right">
+                    <p class="text-4xl font-extrabold">$250.000 <span class="text-lg font-medium text-blue-300">COP</span></p>
+                </div>
+            </div>
+
+            <!-- Tiered Pricing -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                
+                <!-- Plan Basico -->
+                <div class="border border-gray-200 rounded-3xl p-8 bg-white flex flex-col relative overflow-hidden transition hover:border-gray-300 shadow-sm">
+                    <h4 class="text-xl font-bold text-gray-800 mb-1">Plan Básico</h4>
+                    <p class="text-gray-500 mb-4 text-sm">Ideal para clínicas pequeñas o CDAs.</p>
+                    <div class="mb-6 pb-6 border-b border-gray-100">
+                        <span class="text-4xl font-black text-primary">$89.000</span>
+                        <span class="text-gray-500 font-medium tracking-wide"> /mes</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Hasta <strong>2 ventanillas</strong> simultáneas</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Dispensador Web y Pantalla TV con Voz</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Soporte técnico por correo (48h)</span>
+                        </li>
+                        <li class="flex items-start gap-3 opacity-40">
+                            <span class="text-gray-400 mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></span>
+                            <span class="text-gray-500">Sin notificaciones de WhatsApp</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Plan Pro -->
+                <div class="border-2 border-secondary rounded-3xl p-8 bg-white flex flex-col relative overflow-hidden shadow-2xl transform md:-translate-y-2">
+                    <div class="absolute top-0 right-0 py-1 px-8 bg-secondary text-white text-xs font-black uppercase tracking-widest transform rotate-45 translate-x-6 mt-4">
+                        Recomendado
+                    </div>
+                    
+                    <h4 class="text-xl font-bold text-gray-800 mb-1">Plan Pro (Avanzado)</h4>
+                    <p class="text-gray-500 mb-4 text-sm">Para instituciones con flujo constante.</p>
+                    <div class="mb-6 pb-6 border-b border-gray-100">
+                        <span class="text-4xl font-black text-secondary">$150.000</span>
+                        <span class="text-gray-500 font-medium tracking-wide"> /mes</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Hasta <strong>5 ventanillas</strong> simultáneas</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Estadísticas avanzadas de operadores</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600 bg-green-50 px-2 py-0.5 rounded text-green-700 font-semibold text-sm">Notificaciones reales vía WhatsApp</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-accent mt-0.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                            <span class="text-gray-600">Soporte prioritario WhatsApp (24h)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Annual Offer -->
+            <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl flex items-center gap-4 mb-10">
+                <span class="text-4xl">🎁</span>
+                <div>
+                    <h4 class="font-bold text-indigo-900 text-lg">Beneficio por Pago Anual</h4>
+                    <p class="text-indigo-700">Contrate cualquier plan pagando un año completo por anticipado y reciba <strong>2 meses de servicio gratis</strong> (Ahorro del 16%).</p>
+                </div>
+            </div>
+
+            <!-- CONSIDERACIONES -->
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Condiciones Estándar del Servicio</h3>
+            <div class="bg-gray-50 rounded-2xl p-6 text-sm text-gray-600 space-y-2 mb-8">
+                <p>• Los valores indicados <span class="font-semibold">no incluyen IVA</span> (En caso de ser aplicable).</p>
+                <p>• El cliente deberá suministrar los equipos físicos (Tablet para kiosko, TV para pantalla y PC para operadores) conectados a internet.</p>
+                <p>• La estabilidad del sistema depende 100% de la disponibilidad de conexión a internet en la sede del cliente.</p>
+                <p>• Facturación periódica mes anticipado.</p>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="bg-gray-900 text-gray-400 p-10 text-center">
+            <h4 class="text-white text-2xl font-bold mb-4">Aprobación de la Propuesta</h4>
+            <p class="mb-8">Esta propuesta es válida por 15 días tras su emisión.</p>
+            
+            <div class="flex flex-col md:flex-row justify-center items-end gap-12 mt-8 max-w-2xl mx-auto opacity-70">
+                <div class="flex-1 w-full text-center border-t border-gray-600 pt-3">
+                    <p class="font-bold text-gray-300">SinuHub Technologies</p>
+                    <p class="text-sm">Firma Autorizada</p>
+                </div>
+                <div class="flex-1 w-full text-center border-t border-gray-600 pt-3">
+                    <p class="font-bold text-gray-300">[Nombre del Cliente]</p>
+                    <p class="text-sm">Aceptado por</p>
+                </div>
+            </div>
+
+            <p class="mt-12 text-sm">© 2026 SinuFila By SinuHub. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set dynamic date in JS so it formats nicely to Spanish
+        const d = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').innerText = d.toLocaleDateString('es-CO', options);
+    </script>
+</body>
+</html>

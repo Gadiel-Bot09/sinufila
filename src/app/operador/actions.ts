@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentEntityId } from '@/lib/supabase/queries';
 import { sendWhatsApp, msgTurnoLlamado, msgCasiTuTurno } from '@/lib/whatsapp';
+import { revalidatePath } from 'next/cache';
+
 
 export async function processOperatorAction(
   action: 'attend' | 'complete' | 'skip' | 'absent' | 'recall',
@@ -206,4 +208,63 @@ async function notifyNextInQueue(
   } catch {
     // No bloquear el flujo si falla el WhatsApp
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Transferir turno a otra ventanilla
+// ─────────────────────────────────────────────────────────────────────────────
+export async function transferTicket(
+  ticketId: string,
+  targetWindowId: string
+): Promise<{ success?: boolean; error?: string }> {
+  const entityId = await getCurrentEntityId();
+  if (!entityId) return { error: 'No autorizado' };
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'No autorizado' };
+
+  // Verificar que el operador sea quien tiene ese ticket en atención
+  const { data: operator } = await supabase
+    .from('operators')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!operator) return { error: 'No eres operador' };
+
+  // Verificar que la ventanilla destino pertenece a la misma entidad
+  const { data: targetWindow } = await supabase
+    .from('windows')
+    .select('id')
+    .eq('id', targetWindowId)
+    .eq('entity_id', entityId)
+    .eq('is_active', true)
+    .single();
+
+  if (!targetWindow) return { error: 'Ventanilla de destino no válida' };
+
+  // Devolver el ticket a "waiting" con la nueva ventanilla asignada
+  // Se resetean operator_id y window_id para que el nuevo operador lo tome
+  const { error: updateError, data: updated } = await supabase
+    .from('tickets')
+    .update({
+      status:      'waiting',
+      operator_id: null,
+      window_id:   targetWindowId,
+      attended_at: null,
+      called_at:   null,
+    })
+    .eq('id', ticketId)
+    .eq('entity_id', entityId)
+    .eq('operator_id', operator.id)
+    .eq('status', 'attending')
+    .select('id');
+
+  if (updateError || !updated || updated.length === 0) {
+    return { error: 'No se pudo transferir el turno. Verifica que aún esté en atención.' };
+  }
+
+  revalidatePath('/operador');
+  return { success: true };
 }

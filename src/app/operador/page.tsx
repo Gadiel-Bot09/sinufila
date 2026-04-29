@@ -39,23 +39,30 @@ export default async function OperadorPage() {
     );
   }
 
+  // Todas las ventanillas activas (para el selector de transferencia)
+  const { data: allWindows } = await supabase
+    .from('windows')
+    .select('id, name, number')
+    .eq('entity_id', entityId)
+    .eq('is_active', true)
+    .order('number');
+
   // Si el operador NO tiene ventanilla asignada, mostrar selector primero
   if (!operator.window_id) {
-    const { data: windows } = await supabase
-      .from('windows')
-      .select('id, name, number')
-      .eq('entity_id', entityId)
-      .eq('is_active', true)
-      .order('number');
-
     return (
       <OperadorWindowSelector
         operatorId={operator.id}
         operatorName={operator.name}
-        windows={windows || []}
+        windows={allWindows || []}
       />
     );
   }
 
-  return <OperadorClient entityId={entityId} operator={operator} />;
+  return (
+    <OperadorClient
+      entityId={entityId}
+      operator={operator}
+      allWindows={allWindows || []}
+    />
+  );
 }

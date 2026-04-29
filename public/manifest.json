@@ -2,11 +2,11 @@
   "name": "SinuFila — Gestión de Turnos",
   "short_name": "SinuFila",
   "description": "Sistema de gestión de filas y turnos en tiempo real",
-  "start_url": "/display",
+  "start_url": "/operador",
   "display": "standalone",
   "background_color": "#0A2463",
   "theme_color": "#0A2463",
-  "orientation": "landscape",
+  "orientation": "any",
   "lang": "es-CO",
   "categories": ["productivity", "business"],
   "icons": [
