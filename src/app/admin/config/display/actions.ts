@@ -6,20 +6,31 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateDisplayConfig(formData: FormData) {
   const entityId = await getCurrentEntityId();
-  if (!entityId) return;
+  if (!entityId) return { error: 'No tienes una entidad asignada.' };
 
-  const video_url = formData.get('video_url') as string;
-  const ticker_text = formData.get('ticker_text') as string;
+  const video_url   = (formData.get('video_url')   as string)?.trim() || null;
+  const ticker_text = (formData.get('ticker_text') as string)?.trim() || null;
 
   const supabase = createClient();
-  await supabase
+
+  // upsert: crea el registro si no existe, o actualiza si ya existe
+  const { error } = await supabase
     .from('display_config')
-    .update({
-      video_url,
-      ticker_text,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('entity_id', entityId);
+    .upsert(
+      {
+        entity_id:  entityId,
+        video_url,
+        ticker_text,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'entity_id' }
+    );
+
+  if (error) {
+    console.error('[DisplayConfig] Error guardando:', error.message);
+    return { error: 'Error al guardar la configuración. Intenta de nuevo.' };
+  }
 
   revalidatePath('/admin/config/display');
+  return { success: true };
 }
