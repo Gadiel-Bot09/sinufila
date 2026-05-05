@@ -49,16 +49,18 @@ export default function DisplayConfigClient({ initialVideoUrl, initialTickerText
 
   // ── Upload via XHR (para trackear progreso) ────────────────────────────────
   const handleFileUpload = useCallback((file: File) => {
-    // Validar en cliente antes de subir
+    // Validar tamaño en el cliente (el servidor también valida tipo)
     const sizeMB = file.size / 1024 / 1024;
     if (sizeMB > MAX_SIZE_MB) {
       setUploadError(`El video pesa ${sizeMB.toFixed(1)} MB. El límite es ${MAX_SIZE_MB} MB.`);
       return;
     }
 
-    const allowed = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
-    if (!allowed.includes(file.type)) {
-      setUploadError('Formato no soportado. Usa MP4, WebM, OGG o MOV.');
+    // Validación ligera por extensión (no bloquear por MIME — Windows puede reportarlo mal)
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const validExts = ['mp4', 'webm', 'ogv', 'ogg', 'mov', 'avi', 'mkv'];
+    if (!validExts.includes(ext || '')) {
+      setUploadError(`Extensión no soportada (.${ext}). Usa MP4, WebM, MOV, OGG, AVI o MKV.`);
       return;
     }
 
@@ -80,25 +82,43 @@ export default function DisplayConfigClient({ initialVideoUrl, initialTickerText
 
     xhr.addEventListener('load', () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        const data = JSON.parse(xhr.responseText);
-        setVideoUrl(data.url);
-        setUploadedFile({ name: file.name, sizeMB: data.sizeMB });
-        setUploadState('done');
-        setUploadProgress(100);
+        try {
+          const data = JSON.parse(xhr.responseText);
+          setVideoUrl(data.url);
+          setUploadedFile({ name: file.name, sizeMB: data.sizeMB });
+          setUploadState('done');
+          setUploadProgress(100);
+        } catch {
+          setUploadError('Respuesta inválida del servidor.');
+          setUploadState('error');
+        }
       } else {
-        let errMsg = 'Error subiendo el video';
-        try { errMsg = JSON.parse(xhr.responseText)?.error || errMsg; } catch {}
+        let errMsg = `Error del servidor (${xhr.status})`;
+        try {
+          const data = JSON.parse(xhr.responseText);
+          errMsg = data?.error || errMsg;
+          // Mostrar pasos de diagnóstico en consola para debugging
+          if (data?.steps) console.error('[Upload] Steps reached:', data.steps);
+          if (data?.code)  console.error('[Upload] Error code:', data.code);
+        } catch {}
         setUploadError(errMsg);
         setUploadState('error');
       }
     });
 
     xhr.addEventListener('error', () => {
-      setUploadError('Error de red. Verifica tu conexión e intenta nuevamente.');
+      setUploadError('Error de red al conectar con el servidor. Verifica tu conexión.');
+      setUploadState('error');
+    });
+
+    xhr.addEventListener('timeout', () => {
+      setUploadError('Tiempo de espera agotado. El video puede ser muy grande o la conexión es lenta.');
       setUploadState('error');
     });
 
     xhr.open('POST', '/api/upload/video');
+    xhr.withCredentials = true;  // Enviar cookies de sesión con el upload
+    xhr.timeout = 300_000;       // 5 minutos timeout para videos grandes
     xhr.send(formData);
   }, []);
 
