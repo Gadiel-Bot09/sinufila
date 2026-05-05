@@ -47,16 +47,18 @@ export default function DisplayConfigClient({ initialVideoUrl, initialTickerText
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Upload via XHR (para trackear progreso) ────────────────────────────────
-  const handleFileUpload = useCallback((file: File) => {
-    // Validar tamaño en el cliente (el servidor también valida tipo)
+  // ── Upload con Presigned URL ─────────────────────────────────────────────────
+  // Flujo: browser → GET /api/upload/video-presigned (tiny) → PUT directo a MinIO
+  // El archivo NUNCA pasa por Next.js ni Nginx → imposible el error 413
+  const handleFileUpload = useCallback(async (file: File) => {
+    // Validar tamaño en cliente
     const sizeMB = file.size / 1024 / 1024;
     if (sizeMB > MAX_SIZE_MB) {
       setUploadError(`El video pesa ${sizeMB.toFixed(1)} MB. El límite es ${MAX_SIZE_MB} MB.`);
       return;
     }
 
-    // Validación ligera por extensión (no bloquear por MIME — Windows puede reportarlo mal)
+    // Validación por extensión (MIME no es confiable en Windows)
     const ext = file.name.split('.').pop()?.toLowerCase();
     const validExts = ['mp4', 'webm', 'ogv', 'ogg', 'mov', 'avi', 'mkv'];
     if (!validExts.includes(ext || '')) {
@@ -69,9 +71,30 @@ export default function DisplayConfigClient({ initialVideoUrl, initialTickerText
     setUploadError('');
     setUploadedFile(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
+    // ── Paso 1: Obtener presigned URL del servidor (request pequeño) ────────
+    let presignedUrl: string;
+    let publicUrl: string;
+    try {
+      const resp = await fetch(
+        `/api/upload/video-presigned?filename=${encodeURIComponent(file.name)}`,
+        { credentials: 'include' }
+      );
+      const data = await resp.json();
 
+      if (!resp.ok) {
+        setUploadError(data?.error || `Error del servidor (${resp.status})`);
+        setUploadState('error');
+        return;
+      }
+      presignedUrl = data.presignedUrl;
+      publicUrl    = data.publicUrl;
+    } catch {
+      setUploadError('No se pudo conectar al servidor para iniciar el upload.');
+      setUploadState('error');
+      return;
+    }
+
+    // ── Paso 2: Subir directamente a MinIO (sin pasar por Next.js/Nginx) ───
     const xhr = new XMLHttpRequest();
 
     xhr.upload.addEventListener('progress', (e) => {
@@ -81,45 +104,39 @@ export default function DisplayConfigClient({ initialVideoUrl, initialTickerText
     });
 
     xhr.addEventListener('load', () => {
+      // MinIO responde 200 o 204 en éxito para PUT presignado
       if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          setVideoUrl(data.url);
-          setUploadedFile({ name: file.name, sizeMB: data.sizeMB });
-          setUploadState('done');
-          setUploadProgress(100);
-        } catch {
-          setUploadError('Respuesta inválida del servidor.');
-          setUploadState('error');
-        }
+        setVideoUrl(publicUrl);
+        setUploadedFile({ name: file.name, sizeMB: Math.round(sizeMB * 10) / 10 });
+        setUploadState('done');
+        setUploadProgress(100);
       } else {
-        let errMsg = `Error del servidor (${xhr.status})`;
-        try {
-          const data = JSON.parse(xhr.responseText);
-          errMsg = data?.error || errMsg;
-          // Mostrar pasos de diagnóstico en consola para debugging
-          if (data?.steps) console.error('[Upload] Steps reached:', data.steps);
-          if (data?.code)  console.error('[Upload] Error code:', data.code);
-        } catch {}
-        setUploadError(errMsg);
+        setUploadError(
+          `MinIO rechazó el archivo (${xhr.status}). ` +
+          `Verifica que el bucket "sinufila" esté configurado como público.`
+        );
         setUploadState('error');
       }
     });
 
     xhr.addEventListener('error', () => {
-      setUploadError('Error de red al conectar con el servidor. Verifica tu conexión.');
+      setUploadError(
+        'Error de red al subir a MinIO. ' +
+        'Si persiste, verifica CORS en el bucket: AllowedOrigins debe incluir este dominio.'
+      );
       setUploadState('error');
     });
 
     xhr.addEventListener('timeout', () => {
-      setUploadError('Tiempo de espera agotado. El video puede ser muy grande o la conexión es lenta.');
+      setUploadError('Tiempo agotado. La conexión con MinIO es lenta o el video es muy grande.');
       setUploadState('error');
     });
 
-    xhr.open('POST', '/api/upload/video');
-    xhr.withCredentials = true;  // Enviar cookies de sesión con el upload
-    xhr.timeout = 300_000;       // 5 minutos timeout para videos grandes
-    xhr.send(formData);
+    // PUT directo a MinIO con el archivo (no FormData — MinIO espera el cuerpo raw)
+    xhr.open('PUT', presignedUrl);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.timeout = 600_000; // 10 minutos para videos muy grandes
+    xhr.send(file);
   }, []);
 
   // ── Drag & Drop handlers ───────────────────────────────────────────────────
