@@ -7,12 +7,19 @@ let _corsConfigured = false;
 export function getMinioClient(): Minio.Client {
   if (_client) return _client;
 
+  const accessKey = process.env.MINIO_ACCESS_KEY || '1GV46r8CW2a6S0ANvsrb';
+  const secretKey = process.env.MINIO_SECRET_KEY || 'G9YsZmBxHXKImNFHR1oONRfMBcnitl2o74NAaSQ1';
+
+  if (!accessKey || !secretKey) {
+    throw new Error('[MinIO] MINIO_ACCESS_KEY y MINIO_SECRET_KEY son requeridos.');
+  }
+
   _client = new Minio.Client({
-    endPoint:  process.env.MINIO_ENDPOINT  || 'esetre.sinuhub.com',
+    endPoint:  process.env.MINIO_ENDPOINT || 'esetre.sinuhub.com',
     port:      parseInt(process.env.MINIO_PORT || '443'),
     useSSL:    (process.env.MINIO_USE_SSL ?? 'true') !== 'false',
-    accessKey: process.env.MINIO_ACCESS_KEY!,
-    secretKey: process.env.MINIO_SECRET_KEY!,
+    accessKey,
+    secretKey,
   });
 
   return _client;
