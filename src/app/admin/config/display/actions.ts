@@ -8,6 +8,7 @@ export async function updateDisplayConfig(formData: FormData) {
   const entityId = await getCurrentEntityId();
   if (!entityId) return { error: 'No tienes una entidad asignada.' };
 
+  // video_url viene del campo hidden que el client component sincroniza con el estado
   const video_url   = (formData.get('video_url')   as string)?.trim() || null;
   const ticker_text = (formData.get('ticker_text') as string)?.trim() || null;
 
