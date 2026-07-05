@@ -45,8 +45,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="w-60 bg-[#0A2463] text-white flex flex-col py-6 px-4 min-h-screen shrink-0 shadow-xl">
         {/* Brand */}
         <div className="mb-8 px-2">
-          <h2 className="text-2xl font-black tracking-tight">SinuFila</h2>
-          <p className="text-blue-300 text-xs mt-0.5">Panel de Administración</p>
+          <img
+            src="/logo-white.svg"
+            alt="SinuFila"
+            width={168}
+            height={42}
+            style={{ height: '42px', width: 'auto' }}
+          />
+          <p className="text-blue-300 text-xs mt-2">Panel de Administración</p>
         </div>
 
         {/* Nav Sections */}

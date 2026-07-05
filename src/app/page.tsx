@@ -138,9 +138,8 @@ export default function LandingPage() {
       {/* ── NAVBAR ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 font-black text-xl text-[#0A2463]">
-            <span className="w-8 h-8 bg-[#0A2463] rounded-lg flex items-center justify-center text-white font-black text-sm">S</span>
-            SinuFila
+          <Link href="/" className="flex items-center">
+            <img src="/logo.svg" alt="SinuFila" width={180} height={46} style={{ height: '46px', width: 'auto' }} />
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
             <a href="#features" className="hover:text-[#0A2463] transition-colors">Funcionalidades</a>
@@ -366,9 +365,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-2 font-black text-xl text-white mb-3">
-                <span className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-white font-black text-sm">S</span>
-                SinuFila
+              <div className="mb-3">
+                <img src="/logo-white.svg" alt="SinuFila" width={180} height={46} style={{ height: '46px', width: 'auto' }} />
               </div>
               <p className="text-blue-300 text-sm leading-relaxed max-w-sm">
                 Sistema SaaS de gestión de turnos para clínicas, bancos y entidades gubernamentales de Colombia.
