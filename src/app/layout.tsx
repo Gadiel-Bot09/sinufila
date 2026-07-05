@@ -20,21 +20,10 @@ export const metadata: Metadata = {
   description:
     "Plataforma SaaS moderna para gestión de filas y turnos para clínicas, bancos y oficinas gubernamentales.",
   manifest: "/manifest.json",
-  icons: {
-    // Favicon SVG (navegadores modernos)
-    icon: [
-      { url: "/icon.svg",  type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    // Apple Touch Icon
-    apple: [{ url: "/icon.svg" }],
-    shortcut: "/icon.svg",
-  },
   openGraph: {
     title: "SinuFila - Sistema de Gestión de Turnos",
     description: "Digitaliza la atención al cliente de tu entidad con SinuFila.",
     type: "website",
-    images: [{ url: "/logo.svg", width: 300, height: 64 }],
   },
 };
 

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="SinuFila">
+  <defs>
+    <linearGradient id="sf-icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0A2463"/>
+      <stop offset="100%" stop-color="#00838F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo rounded square -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#sf-icon-grad)"/>
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="white" opacity="0.07"/>
+
+  <!-- Fila 1 — turno activo -->
+  <circle cx="16" cy="22" r="6.5" fill="white"/>
+  <polyline points="12.5,22 15,24.5 19.5,19" fill="none" stroke="#00838F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="26" y="17" width="30" height="10" rx="5" fill="white" opacity="0.95"/>
+  <polygon points="58,19.5 62,22 58,24.5" fill="#00838F" opacity="0.9"/>
+
+  <!-- Fila 2 -->
+  <circle cx="16" cy="38" r="6.5" fill="white" opacity="0.72"/>
+  <rect x="26" y="33" width="22" height="10" rx="5" fill="white" opacity="0.60"/>
+
+  <!-- Fila 3 -->
+  <circle cx="16" cy="54" r="6.5" fill="white" opacity="0.45"/>
+  <rect x="26" y="49" width="14" height="10" rx="5" fill="white" opacity="0.38"/>
+</svg>

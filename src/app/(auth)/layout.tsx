@@ -26,11 +26,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <div className="relative z-10">
           <img
-            src="/logo.svg"
+            src="/logo-white.svg"
             alt="SinuFila"
             width={220}
             height={56}
-            className="brightness-0 invert" /* logo blanco sobre fondo oscuro */
           />
         </div>
 
