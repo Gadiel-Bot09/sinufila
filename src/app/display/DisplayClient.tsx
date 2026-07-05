@@ -73,10 +73,20 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
   }, [tickets, loading, config, interacted]);
   const speakTurn = (ticket: any, voiceSettings: any) => {
     if (typeof window === 'undefined' || !interacted) return;
-    const message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla {{ventanilla}}')
-      .replace('{{turno}}', ticket.ticket_code)
-      .replace('{{ventanilla}}', ticket.window?.number ? `número ${ticket.window.number}` : 'de atención')
-      .replace('{{servicio}}', ticket.service?.name ?? '');
+
+    // Si hay nombre de paciente, anunciarlo; si no, usar el template estándar
+    let message: string;
+    if (ticket.patient_name) {
+      const windowPart = ticket.window?.number
+        ? `acérquese a la ventanilla número ${ticket.window.number}${ticket.window.name ? ', ' + ticket.window.name : ''}`
+        : 'acérquese a la ventanilla de atención';
+      message = `Turno ${ticket.ticket_code}, ${ticket.patient_name}, por favor ${windowPart}.`;
+    } else {
+      message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla {{ventanilla}}')
+        .replace('{{turno}}', ticket.ticket_code)
+        .replace('{{ventanilla}}', ticket.window?.number ? `número ${ticket.window.number}` : 'de atención')
+        .replace('{{servicio}}', ticket.service?.name ?? '');
+    }
 
     const reps: number = voiceSettings.repetitions ?? 1;
     const interval: number = voiceSettings.repeatIntervalMs ?? 2000;
@@ -177,6 +187,17 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
                 <h1 className="text-7xl font-mono font-black text-[#0A2463] my-3 tracking-tighter">
                   {lastCalled.ticket_code}
                 </h1>
+
+                {/* Nombre del paciente si está identificado */}
+                {lastCalled.patient_name && (
+                  <div className="w-full bg-[#0A2463]/5 border border-[#0A2463]/15 rounded-2xl px-4 py-2 mb-2 text-center">
+                    <p className="text-base text-gray-400 font-medium uppercase tracking-wider mb-0.5">Paciente</p>
+                    <p className="text-2xl font-bold text-[#0A2463] leading-tight">
+                      👤 {lastCalled.patient_name}
+                    </p>
+                  </div>
+                )}
+
                 <div
                   className="text-xl font-bold mt-2 px-5 py-2 rounded-full border-2"
                   style={{ borderColor: lastCalled.priority?.color ?? '#FF6B35', color: lastCalled.priority?.color ?? '#FF6B35' }}

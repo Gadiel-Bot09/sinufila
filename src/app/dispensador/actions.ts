@@ -45,7 +45,8 @@ export async function createTicket(
   entityId: string,
   serviceId: string,
   priorityId: string,
-  phoneNumber?: string | null
+  phoneNumber?: string | null,
+  patientName?: string | null,
 ) {
   if (!entityId || !serviceId || !priorityId) {
     return { error: 'Parámetros inválidos' };
@@ -108,13 +109,14 @@ export async function createTicket(
   const { data: newTicket, error: insertError } = await supabase
     .from('tickets')
     .insert({
-      entity_id: entityId,
-      service_id: serviceId,
+      entity_id:         entityId,
+      service_id:        serviceId,
       priority_level_id: priorityId,
-      ticket_number: ticketNumber,
-      ticket_code: ticketCode,
-      status: 'waiting',
-      phone_number: normalizedPhone || null,
+      ticket_number:     ticketNumber,
+      ticket_code:       ticketCode,
+      status:            'waiting',
+      phone_number:      normalizedPhone || null,
+      patient_name:      patientName     || null,
     })
     .select(`
       *,
