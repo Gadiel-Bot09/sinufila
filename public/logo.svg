@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="SinuFila - Sistema de Turnos">
+  <defs>
+    <!-- Gradiente del icono: navy → teal diagonal -->
+    <linearGradient id="sf-icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0A2463"/>
+      <stop offset="100%" stop-color="#00838F"/>
+    </linearGradient>
+    <!-- Gradiente del texto "Fila" -->
+    <linearGradient id="sf-fila-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0A2463"/>
+      <stop offset="100%" stop-color="#00838F"/>
+    </linearGradient>
+    <!-- Sombra suave para el icono -->
+    <filter id="sf-icon-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0A2463" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════
+       ÍCONO  (64×64 rounded square)
+  ════════════════════════════════════════════════════ -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#sf-icon-grad)" filter="url(#sf-icon-shadow)"/>
+
+  <!-- Brillo interior sutil -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="white" opacity="0.07"/>
+
+  <!-- Fila 1 — turno activo (brillo total) -->
+  <circle cx="16" cy="22" r="6.5" fill="white"/>
+  <!-- checkmark interno turno activo -->
+  <polyline points="12.5,22 15,24.5 19.5,19" fill="none" stroke="#00838F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="26" y="17" width="30" height="10" rx="5" fill="white" opacity="0.95"/>
+  <!-- flecha "atendiendo" -->
+  <polygon points="58,19.5 62,22 58,24.5" fill="#00838F" opacity="0.9"/>
+
+  <!-- Fila 2 -->
+  <circle cx="16" cy="38" r="6.5" fill="white" opacity="0.72"/>
+  <rect x="26" y="33" width="22" height="10" rx="5" fill="white" opacity="0.60"/>
+
+  <!-- Fila 3 -->
+  <circle cx="16" cy="54" r="6.5" fill="white" opacity="0.45"/>
+  <rect x="26" y="49" width="14" height="10" rx="5" fill="white" opacity="0.38"/>
+
+  <!-- ═══════════════════════════════════════════════════
+       WORDMARK
+  ════════════════════════════════════════════════════ -->
+
+  <!-- "Sinu" — peso ligero, navy -->
+  <text
+    x="80" y="36"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="34"
+    font-weight="300"
+    letter-spacing="-0.5"
+    fill="#0A2463">Sinu</text>
+
+  <!-- "Fila" — peso bold, gradiente -->
+  <text
+    x="162" y="36"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="34"
+    font-weight="800"
+    letter-spacing="-0.5"
+    fill="url(#sf-fila-grad)">Fila</text>
+
+  <!-- Separador punto teal -->
+  <circle cx="84" cy="47" r="2" fill="#00838F" opacity="0.55"/>
+
+  <!-- Tagline -->
+  <text
+    x="92" y="51"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="9.5"
+    font-weight="500"
+    letter-spacing="2.5"
+    fill="#0A2463"
+    opacity="0.50">SISTEMA DE TURNOS</text>
+</svg>

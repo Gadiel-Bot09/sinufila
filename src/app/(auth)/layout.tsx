@@ -25,12 +25,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Logo */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/10 backdrop-blur rounded-xl flex items-center justify-center text-white font-black text-lg border border-white/20">
-              S
-            </div>
-            <span className="text-white font-black text-2xl tracking-tight">SinuFila</span>
-          </div>
+          <img
+            src="/logo.svg"
+            alt="SinuFila"
+            width={220}
+            height={56}
+            className="brightness-0 invert" /* logo blanco sobre fondo oscuro */
+          />
         </div>
 
         {/* Contenido central */}
@@ -87,9 +88,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 bg-[#F8FAFB] overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Logo mobile only */}
-          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
-            <div className="w-8 h-8 bg-[#0A2463] rounded-lg flex items-center justify-center text-white font-black text-sm">S</div>
-            <span className="text-[#0A2463] font-black text-xl">SinuFila</span>
+          <div className="lg:hidden flex justify-center mb-8">
+            <img
+              src="/logo.svg"
+              alt="SinuFila"
+              width={200}
+              height={52}
+            />
           </div>
           {children}
         </div>
