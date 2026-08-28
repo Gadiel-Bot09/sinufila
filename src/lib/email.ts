@@ -152,29 +152,31 @@ export async function sendWelcomeEmail(params: {
 }
 
 // ─────────────────────────────────────────────
-// 2. Email: Invitación a operador
 // ─────────────────────────────────────────────
-export async function sendOperatorInviteEmail(params: {
+// 2. Email: Bienvenida a operador con credenciales
+//    (reemplaza el antiguo invite con link expirable)
+// ─────────────────────────────────────────────
+export async function sendOperatorWelcomeEmail(params: {
   to: string;
   operatorName: string;
   institutionName: string;
   role: string;
-  inviteUrl?: string;
+  tempPassword: string;
+  loginUrl: string;
 }) {
-  const { to, operatorName, institutionName, role, inviteUrl } = params;
+  const { to, operatorName, institutionName, role, tempPassword, loginUrl } = params;
   const roleLabel = role === 'admin' ? 'Administrador' : 'Operador de Turnos';
-  const roleIcon = role === 'admin' ? '👑' : '🧑‍💼';
-  const loginUrl = inviteUrl || `${SITE_URL}/login`;
+  const roleIcon  = role === 'admin' ? '👑' : '🧑‍💼';
 
   const content = `
     <!-- Banner -->
     <div style="background:linear-gradient(135deg,#0A2463 0%,#00838F 100%);border-radius:12px;padding:28px;margin-bottom:32px;text-align:center;">
       <div style="font-size:44px;margin-bottom:8px;">${roleIcon}</div>
       <h1 style="color:white;font-size:24px;font-weight:900;margin:0;">
-        Tienes una invitación
+        ¡Bienvenido a SinuFila!
       </h1>
       <p style="color:rgba(255,255,255,0.85);margin:6px 0 0;font-size:14px;">
-        ${institutionName} te invita a SinuFila
+        ${institutionName} ha creado tu cuenta
       </p>
     </div>
 
@@ -182,46 +184,62 @@ export async function sendOperatorInviteEmail(params: {
       Hola, <strong>${operatorName}</strong> 👋
     </p>
     <p style="color:#374151;font-size:15px;line-height:1.7;margin:0 0 24px;">
-      Has sido invitado(a) a unirte al equipo de <strong style="color:#0A2463;">${institutionName}</strong> como <strong>${roleLabel}</strong> en la plataforma SinuFila.
+      Tu cuenta en <strong style="color:#0A2463;">SinuFila</strong> ha sido creada por el administrador de
+      <strong>${institutionName}</strong> con el rol de <strong>${roleLabel}</strong>.
+      Ya puedes iniciar sesión con las credenciales a continuación.
     </p>
 
-    <!-- Role badge -->
-    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:28px;display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;background:linear-gradient(135deg,#0A2463,#00838F);border-radius:12px;flex-shrink:0;font-size:22px;display:flex;align-items:center;justify-content:center;">
-        <span style="display:block;text-align:center;line-height:48px;">${roleIcon}</span>
-      </div>
-      <div>
-        <p style="color:#0A2463;font-weight:700;font-size:15px;margin:0 0 4px;">${roleLabel}</p>
-        <p style="color:#64748b;font-size:13px;margin:0;">
-          ${role === 'admin' 
-            ? 'Acceso completo: configuración, reportes, gestión de operadores'
-            : 'Atenderás turnos, llamarás pacientes y gestionarás la cola de espera'}
-        </p>
-      </div>
+    <!-- Credenciales box -->
+    <div style="background:#f0f9ff;border:2px solid #0A2463;border-radius:16px;padding:28px;margin-bottom:28px;">
+      <p style="color:#0A2463;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin:0 0 20px;">
+        🔑 Tus credenciales de acceso
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding-bottom:14px;">
+            <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 4px;">Correo electrónico</p>
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;">
+              <code style="font-size:15px;color:#0A2463;font-weight:700;">${to}</code>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p style="color:#64748b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 4px;">Contraseña temporal</p>
+            <div style="background:white;border:2px solid #FF6B35;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+              <code style="font-size:20px;letter-spacing:4px;color:#0A2463;font-weight:900;">${tempPassword}</code>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
 
+    <!-- Aviso cambio de contraseña -->
     <div style="background:#fff7ed;border-left:4px solid #FF6B35;border-radius:8px;padding:16px;margin-bottom:28px;">
-      <p style="color:#92400e;font-weight:600;font-size:13px;margin:0 0 6px;">⏰ Importante</p>
+      <p style="color:#92400e;font-weight:700;font-size:13px;margin:0 0 6px;">⚠️ Importante — Contraseña temporal</p>
       <p style="color:#78350f;font-size:13px;margin:0;line-height:1.6;">
-        Este enlace de invitación es válido por <strong>48 horas</strong>. Haz clic en el botón a continuación para crear tu contraseña y acceder al sistema.
+        Esta es una contraseña de primer acceso generada automáticamente.<br/>
+        <strong>Te recomendamos cambiarla desde tu perfil inmediatamente después de ingresar.</strong>
       </p>
     </div>
 
+    <!-- CTA -->
     <div style="text-align:center;margin-bottom:16px;">
-      <a href="${loginUrl}" class="btn" style="background:linear-gradient(135deg,#00838F,#006b77);color:white;">
-        ✅ Aceptar Invitación y Acceder
+      <a href="${loginUrl}" class="btn" style="background:linear-gradient(135deg,#0A2463,#163580);color:white;">
+        🚀 Iniciar sesión en SinuFila
       </a>
     </div>
     <p style="color:#94a3b8;font-size:12px;text-align:center;margin:0;">
-      Si el botón no funciona, copia este enlace: <a href="${loginUrl}" style="color:#00838F;word-break:break-all;">${loginUrl}</a>
+      Ingresa en: <a href="${loginUrl}" style="color:#00838F;">${loginUrl}</a>
     </p>
   `;
 
   return getResend().emails.send({
     from: FROM,
     to,
-    subject: `${roleIcon} ${institutionName} te invita a SinuFila`,
-    html: baseTemplate(content, `${institutionName} te ha invitado a unirte como ${roleLabel} en SinuFila.`),
+    subject: `${roleIcon} Bienvenido a SinuFila — ${institutionName} creó tu cuenta`,
+    html:    baseTemplate(content, `Tu cuenta en SinuFila fue creada. Inicia sesión con las credenciales que encontrarás en este correo.`),
   });
 }
 
