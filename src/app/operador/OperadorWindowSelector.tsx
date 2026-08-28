@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { assignOperatorWindow } from './window-actions';
 import { useRouter } from 'next/navigation';
 
-interface Window {
+interface WindowOption {
   id: string;
   name: string;
   number: string;
@@ -13,14 +13,21 @@ interface Window {
 interface Props {
   operatorId: string;
   operatorName: string;
-  windows: Window[];
+  currentWindowId: string | null;   // ventanilla actual (para pre-seleccionar)
+  windows: WindowOption[];
 }
 
-export default function OperadorWindowSelector({ operatorId, operatorName, windows }: Props) {
+export default function OperadorWindowSelector({
+  operatorId,
+  operatorName,
+  currentWindowId,
+  windows,
+}: Props) {
   const router = useRouter();
-  const [selected, setSelected] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  // Pre-selecciona la ventanilla que tenía el operador
+  const [selected, setSelected] = useState<string>(currentWindowId ?? '');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
 
   const handleConfirm = async () => {
     if (!selected) {
@@ -37,8 +44,8 @@ export default function OperadorWindowSelector({ operatorId, operatorName, windo
       return;
     }
 
-    // Recargar para que page.tsx detecte la ventanilla asignada
-    router.refresh();
+    // Navegar a ?ready=1 para que page.tsx salte el selector
+    router.push('/operador?ready=1');
   };
 
   return (
@@ -50,10 +57,15 @@ export default function OperadorWindowSelector({ operatorId, operatorName, windo
           <div className="w-16 h-16 bg-[#0A2463]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
             🏢
           </div>
-          <h1 className="text-2xl font-black text-[#0A2463]">Selecciona tu Ventanilla</h1>
+          <h1 className="text-2xl font-black text-[#0A2463]">¿Dónde atiendes hoy?</h1>
           <p className="text-gray-500 mt-2">
-            Hola <strong>{operatorName}</strong>. Elige la ventanilla desde la que vas a atender hoy.
+            Hola <strong>{operatorName}</strong>. Selecciona tu ventanilla o consultorio de hoy.
           </p>
+          {currentWindowId && (
+            <p className="text-xs text-blue-500 mt-1">
+              💡 Última sesión: ya tienes una ventanilla asignada — puedes confirmarla o cambiarla.
+            </p>
+          )}
         </div>
 
         {/* Windows grid */}
@@ -73,6 +85,9 @@ export default function OperadorWindowSelector({ operatorId, operatorName, windo
                   {w.number}
                 </div>
                 <div className="text-sm font-medium truncate">{w.name}</div>
+                {selected === w.id && (
+                  <div className="text-xs mt-1 opacity-80">✓ Seleccionada</div>
+                )}
               </button>
             ))}
           </div>
@@ -92,7 +107,7 @@ export default function OperadorWindowSelector({ operatorId, operatorName, windo
 
         <button
           onClick={handleConfirm}
-          disabled={loading || windows.length === 0}
+          disabled={loading || windows.length === 0 || !selected}
           className="w-full py-4 rounded-xl font-bold text-white text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
           style={{ background: 'linear-gradient(135deg, #0A2463, #163580)' }}
         >
@@ -105,13 +120,13 @@ export default function OperadorWindowSelector({ operatorId, operatorName, windo
                 </svg>
                 Asignando ventanilla...
               </span>
-            ) : '✅ Comenzar a Atender'}
+            ) : selected ? '✅ Comenzar a Atender' : 'Selecciona una ventanilla'}
           </span>
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all" />
         </button>
 
         <p className="text-center text-xs text-gray-400 mt-4">
-          Puedes cambiar tu ventanilla desde el panel de administración.
+          Esta selección determina hacia dónde se dirigirán los pacientes al ser llamados.
         </p>
       </div>
     </div>

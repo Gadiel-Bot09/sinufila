@@ -3,7 +3,11 @@ import { getCurrentEntityId } from "@/lib/supabase/queries";
 import OperadorClient from "./OperadorClient";
 import OperadorWindowSelector from "./OperadorWindowSelector";
 
-export default async function OperadorPage() {
+interface Props {
+  searchParams: { ready?: string };
+}
+
+export default async function OperadorPage({ searchParams }: Props) {
   const entityId = await getCurrentEntityId();
   if (!entityId) {
     return (
@@ -39,7 +43,7 @@ export default async function OperadorPage() {
     );
   }
 
-  // Todas las ventanillas activas (para el selector de transferencia)
+  // Todas las ventanillas activas
   const { data: allWindows } = await supabase
     .from('windows')
     .select('id, name, number')
@@ -47,12 +51,19 @@ export default async function OperadorPage() {
     .eq('is_active', true)
     .order('number');
 
-  // Si el operador NO tiene ventanilla asignada, mostrar selector primero
-  if (!operator.window_id) {
+  // ─── CAMBIO CLAVE ────────────────────────────────────────────────────────────
+  // El selector se muestra SIEMPRE al inicio de sesión (?ready no presente).
+  // Solo se salta si el operador ya confirmó su ventanilla en ESTA sesión (?ready=1).
+  // Esto asegura que si el operador trabaja hoy en Consultorio 02 pero ayer
+  // estuvo en Caja, pueda elegir correctamente sin quedar atrapado.
+  const sessionReady = searchParams?.ready === '1' && !!operator.window_id;
+
+  if (!sessionReady) {
     return (
       <OperadorWindowSelector
         operatorId={operator.id}
         operatorName={operator.name}
+        currentWindowId={operator.window_id}   // para pre-seleccionar la última ventanilla
         windows={allWindows || []}
       />
     );

@@ -250,10 +250,16 @@ export default function OperadorClient({
         <div className="bg-[#0A2463] text-white px-6 py-3 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <span className="font-bold text-lg">Panel Operador</span>
-            {operator.window && (
-              <span className="bg-yellow-400 text-[#0A2463] px-3 py-0.5 rounded-full font-black text-sm">
-                🏢 Ventanilla {operator.window.number}
-                {operator.window.name ? ` — ${operator.window.name}` : ''}
+          {operator.window && (
+              <span className="bg-yellow-400 text-[#0A2463] px-3 py-0.5 rounded-full font-black text-sm flex items-center gap-1.5">
+                🏢 {operator.window.name || `Ventanilla ${operator.window.number}`}
+                <a
+                  href="/operador"
+                  className="ml-1 text-[#0A2463]/60 hover:text-[#0A2463] text-xs font-semibold underline underline-offset-2"
+                  title="Cambiar ventanilla"
+                >
+                  cambiar
+                </a>
               </span>
             )}
             {/* Badge Realtime */}
