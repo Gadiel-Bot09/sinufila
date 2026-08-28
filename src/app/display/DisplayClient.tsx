@@ -25,13 +25,36 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
   const [currentTime, setCurrentTime] = useState('');
   const [interacted, setInteracted] = useState(false);
 
-  // Desbloquear audio del navegador
-  const handleStartDisplay = () => {
+  // Desbloquear audio del navegador y entrar en pantalla completa
+  const handleStartDisplay = async () => {
     setInteracted(true);
     // Silent speech para desbloquear el motor TTS interactuando con el DOM
     const unlockUtterance = new SpeechSynthesisUtterance('');
     unlockUtterance.volume = 0;
     window.speechSynthesis.speak(unlockUtterance);
+
+    // Solicitar pantalla completa automáticamente
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (err) {
+      console.warn('Error al activar pantalla completa automáticamente:', err);
+    }
+  };
+
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.warn('Error intentando pantalla completa:', err);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
   };
 
   // Update clock every second
@@ -146,8 +169,19 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
           )}
           <h1 className="text-3xl font-bold tracking-tight truncate">{entity?.name ?? 'SinuFila'}</h1>
         </div>
-        <div className="text-2xl font-mono font-semibold opacity-70 tabular-nums">
-          {currentTime}
+        <div className="flex items-center gap-4">
+          <div className="text-2xl font-mono font-semibold opacity-70 tabular-nums">
+            {currentTime}
+          </div>
+          <button 
+            onClick={toggleFullscreen}
+            className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#0A2463]/60 hover:text-[#0A2463] transition-colors"
+            title="Pantalla Completa"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
         </div>
       </header>
 
