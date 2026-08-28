@@ -74,17 +74,24 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
   const speakTurn = (ticket: any, voiceSettings: any) => {
     if (typeof window === 'undefined' || !interacted) return;
 
-    // Si hay nombre de paciente, anunciarlo; si no, usar el template estándar
+    // Construye la etiqueta de destino: prioriza el nombre sobre el número
+    const buildDest = (win: any): string => {
+      if (!win) return 'la ventanilla de atención';
+      if (win.name) return win.name; // "Consultorio 02", "Caja", etc.
+      if (win.number) return `la ventanilla número ${win.number}`;
+      return 'la ventanilla de atención';
+    };
+
     let message: string;
     if (ticket.patient_name) {
-      const windowPart = ticket.window?.number
-        ? `acérquese a la ventanilla número ${ticket.window.number}${ticket.window.name ? ', ' + ticket.window.name : ''}`
-        : 'acérquese a la ventanilla de atención';
-      message = `Turno ${ticket.ticket_code}, ${ticket.patient_name}, por favor ${windowPart}.`;
+      // Con nombre: "Turno CT-001. Ricardo Anaya, por favor diríjase a Consultorio 02."
+      message = `Turno ${ticket.ticket_code}. ${ticket.patient_name}, por favor diríjase a ${buildDest(ticket.window)}.`;
     } else {
-      message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a la ventanilla {{ventanilla}}')
+      // Sin nombre: template configurable, con nombre de ventanilla correcto
+      const windowLabel = buildDest(ticket.window);
+      message = (voiceSettings.template || 'Turno {{turno}}, por favor diríjase a {{ventanilla}}')
         .replace('{{turno}}', ticket.ticket_code)
-        .replace('{{ventanilla}}', ticket.window?.number ? `número ${ticket.window.number}` : 'de atención')
+        .replace('{{ventanilla}}', windowLabel)
         .replace('{{servicio}}', ticket.service?.name ?? '');
     }
 
@@ -206,8 +213,9 @@ export default function DisplayClient({ entityId, config, entity }: DisplayClien
                 </div>
                 {lastCalled.window && (
                   <div className="mt-3 bg-yellow-400 text-[#0A2463] rounded-xl px-5 py-2 text-lg font-black">
-                    🏢 Ventanilla {lastCalled.window.number}
-                    {lastCalled.window.name ? ` — ${lastCalled.window.name}` : ''}
+                    🏢 {lastCalled.window.name
+                      ? lastCalled.window.name
+                      : `Ventanilla ${lastCalled.window.number}`}
                   </div>
                 )}
               </motion.div>
