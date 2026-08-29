@@ -27,7 +27,12 @@ export default function LoginPage() {
       return;
     }
 
-    router.push('/admin/dashboard');
+    if (email === 'gadielanaya19@gmail.com') {
+      router.push('/superadmin');
+    } else {
+      router.push('/admin/dashboard');
+    }
+    
     router.refresh();
   };
 

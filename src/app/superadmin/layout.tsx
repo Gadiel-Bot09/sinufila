@@ -23,9 +23,11 @@ export default async function SuperAdminLayout({ children }: { children: React.R
         </div>
         <div className="flex items-center gap-5">
           <span className="text-gray-400 text-sm font-medium">{user.email}</span>
-          <Link href="/admin/dashboard" className="text-sm bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
-            Volver a mi institución
-          </Link>
+          <form action="/auth/signout" method="post">
+            <button type="submit" className="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg font-semibold transition-colors">
+              Cerrar sesión
+            </button>
+          </form>
         </div>
       </header>
       <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
